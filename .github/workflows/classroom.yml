@@ -1,0 +1,125 @@
+name: GitHub Classroom Workflow
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  checks: write
+  actions: read
+  contents: read
+
+jobs:
+  run-autograding-tests:
+    name: Autograding
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # ── Compile ────────────────────────────────
+      - name: Compile DESCipher
+        id: compile
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Compile DESCipher
+          setup-command: javac DESCipher.java
+          command: echo 'Compilation successful'
+          timeout: 30
+          max-score: 1
+
+      # ── TC-1 Encryption ────────────────────────
+      - name: "TC-1 | HELLO123 Encryption"
+        id: tc1-enc
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "TC-1 | HELLO123 Encryption"
+          setup-command: javac DESCipher.java
+          command: java DESCipher | grep -q "A21A616C70AFAB9A6738237FA5B0F65E" && echo "PASS"
+          timeout: 30
+          max-score: 2
+
+      # ── TC-2 Encryption ────────────────────────
+      - name: "TC-2 | Computer Network Security Encryption"
+        id: tc2-enc
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "TC-2 | Computer Network Security Encryption"
+          setup-command: javac DESCipher.java
+          command: java DESCipher | grep -q "3A1C6C41ED0B0497890E7DFCA039FAFA1A288EA2E8A3248D78DC6B23174DC2BE" && echo "PASS"
+          timeout: 30
+          max-score: 2
+
+      # ── TC-3 Encryption ────────────────────────
+      - name: "TC-3 | DES Algorithm Test 2026! Encryption"
+        id: tc3-enc
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "TC-3 | DES Algorithm Test 2026! Encryption"
+          setup-command: javac DESCipher.java
+          command: java DESCipher | grep -q "F3BF3CA7C558199E17264408F78409BC5C7D04671BE5E9296738237FA5B0F65E" && echo "PASS"
+          timeout: 30
+          max-score: 2
+
+      # ── TC-1 Decryption ────────────────────────
+      - name: "TC-1 | HELLO123 Decryption"
+        id: tc1-dec
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "TC-1 | HELLO123 Decryption"
+          setup-command: javac DESCipher.java
+          command: java DESCipher | grep -q "HELLO123" && echo "PASS"
+          timeout: 30
+          max-score: 1
+
+      # ── TC-2 Decryption ────────────────────────
+      - name: "TC-2 | Computer Network Security Decryption"
+        id: tc2-dec
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "TC-2 | Computer Network Security Decryption"
+          setup-command: javac DESCipher.java
+          command: java DESCipher | grep -q "Computer Network Security" && echo "PASS"
+          timeout: 30
+          max-score: 1
+
+      # ── TC-3 Decryption ────────────────────────
+      - name: "TC-3 | DES Algorithm Test 2026! Decryption"
+        id: tc3-dec
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "TC-3 | DES Algorithm Test 2026! Decryption"
+          setup-command: javac DESCipher.java
+          command: java DESCipher | grep -q "DES Algorithm Test 2026!" && echo "PASS"
+          timeout: 30
+          max-score: 1
+
+      # ── Report ─────────────────────────────────
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          COMPILE-DESCIPHER_RESULTS: "${{ steps.compile.outputs.result }}"
+          TC1-HELLO123-ENCRYPTION_RESULTS: "${{ steps.tc1-enc.outputs.result }}"
+          TC2-COMPUTER-NETWORK-SECURITY-ENCRYPTION_RESULTS: "${{ steps.tc2-enc.outputs.result }}"
+          TC3-DES-ALGORITHM-TEST-2026-ENCRYPTION_RESULTS: "${{ steps.tc3-enc.outputs.result }}"
+          TC1-HELLO123-DECRYPTION_RESULTS: "${{ steps.tc1-dec.outputs.result }}"
+          TC2-COMPUTER-NETWORK-SECURITY-DECRYPTION_RESULTS: "${{ steps.tc2-dec.outputs.result }}"
+          TC3-DES-ALGORITHM-TEST-2026-DECRYPTION_RESULTS: "${{ steps.tc3-dec.outputs.result }}"
+        with:
+          runners: >
+            COMPILE-DESCIPHER,
+            TC1-HELLO123-ENCRYPTION,
+            TC2-COMPUTER-NETWORK-SECURITY-ENCRYPTION,
+            TC3-DES-ALGORITHM-TEST-2026-ENCRYPTION,
+            TC1-HELLO123-DECRYPTION,
+            TC2-COMPUTER-NETWORK-SECURITY-DECRYPTION,
+            TC3-DES-ALGORITHM-TEST-2026-DECRYPTION
